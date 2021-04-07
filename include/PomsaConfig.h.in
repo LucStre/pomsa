@@ -1,0 +1,4 @@
+//the configured options and settings for pomsa
+#define pomsa_VERSION_MAJOR @pomsa_VERSION_MAJOR@
+#define pomsa_VERSION_MINOR @pomsa_VERSION_MINOR@
+#define pomsa_VERSION_PATCH @pomsa_VERSION_PATCH@
