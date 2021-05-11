@@ -8,6 +8,7 @@ struct Node{
     char value;
     int predCount = 0;
     std::vector<Node *> predecessors;
+    //id of sequence and position index of each letter in sequence for pomsa
     bool operator<(const Node &other) const{
         return value < other.value;
     };
@@ -30,7 +31,7 @@ class Graph{
 public:
     std::vector<Node*> nodes;
     std::list<Edge*> edges;
-    unsigned int nodes_number;
+    unsigned int nodes_number = 0;
     int ID = 0;
 
     Graph() {}
@@ -99,6 +100,7 @@ public:
         node->id = ID++;
         node->value = value;
         nodes.push_back(node);
+        nodes_number++;
         return node;
     }
 
