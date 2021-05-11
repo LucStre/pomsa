@@ -9,7 +9,6 @@ using namespace std;
 
 enum AlignmentType{
     global,
-    local,
     semiglobal
 };
 enum ComingFromDirection{
@@ -46,27 +45,32 @@ Cell **V;
 
 void initialization(AlignmentType type, unsigned int target_len, int gap)
 {
-    int k = 0;
-    if (type == global){
-        V[0][0].value = 0;
-        V[0][0].iIndex = 0;
-        V[0][0].iIndex = 0;
-        for (int i = 1; i <= graph.nodes_number; i++){
+    V[0][0].value = 0;
+    V[0][0].iIndex = 0;
+    V[0][0].iIndex = 0;
+    for (int i = 1; i <= graph.nodes_number; i++){
+        if(type == global){
             V[i][0].value = gap * i;
-            V[i][0].comingFrom = &V[i - 1][0];
-            V[i][0].iIndex = i;
-            V[i][0].iIndex = 0;
+        }else{
+            V[i][0].value = 0;
         }
-        for (int j = 1; j <= target_len; j++){
-            V[0][j].value = gap * j;
-            V[0][j].comingFrom = &V[0][j - 1];
-            V[0][j].iIndex = 0;
-            V[0][j].iIndex = j;
-        }
-        k++;
+        V[i][0].comingFrom = &V[i - 1][0];
+        V[i][0].iIndex = i;
+        V[i][0].iIndex = 0;
     }
-    for (int i = k; i <= graph.nodes_number; i++){
-        for (int j = k; j <= target_len; j++){
+    for (int j = 1; j <= target_len; j++){
+        if(type == global){
+            V[0][j].value = gap * j;
+        }else{
+            V[0][j].value = 0;
+        }
+        V[0][j].comingFrom = &V[0][j - 1];
+        V[0][j].iIndex = 0;
+        V[0][j].iIndex = j;
+    }
+        
+    for (int i = 1; i <= graph.nodes_number; i++){
+        for (int j = 1; j <= target_len; j++){
             V[i][j].value = 0;
             if (j == 0){
                 V[i][j].comingFrom = &V[i - 1][j];
@@ -101,7 +105,7 @@ void initialization(AlignmentType type, unsigned int target_len, int gap)
     }
 }
 
-void AlignToGraph(const char *target, unsigned int target_len, AlignmentType type, int match, int mismatch, int gap)
+void AlignToGraph(const char *target, unsigned int target_len, AlignmentType type, int match, int mismatch, int gap, string *cigar)
 {
     V = new Cell *[graph.nodes_number + 1];
     for (unsigned int i = 0; i <= graph.nodes_number; i++){
@@ -159,43 +163,20 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
     }
 
     Cell *alignScore;
-    if (type == local){
-        for (int i = 1; i <= graph.nodes_number; i++){
-            for (int j = 1; j <= target_len; j++){
-                if (V[i][j].value > alignScore->value){
-                    alignScore = &V[i - 1][j - 1];
-                    alignScore->iIndex = i - 1;
-                    alignScore->jIndex = j - 1;
-                }
-            }
-        }
-    }else if (type == semiglobal){
-        for (int i = 1; i < graph.nodes_number; i++){
-            if (V[i][target_len].value > alignScore->value){
-                alignScore = &V[i][target_len];
-                alignScore->iIndex = i;
-                alignScore->jIndex = target_len;
-            }
-        }
-        for (int j = 1; j < target_len; j++){
-            if (V[graph.nodes_number][j].value > alignScore->value){
-                alignScore = &V[graph.nodes_number][j];
-                alignScore->iIndex = graph.nodes_number;
-                alignScore->jIndex = j;
-            }
-        }
-    }else{
-        alignScore = &V[graph.nodes_number][target_len];
-        alignScore->iIndex = graph.nodes_number;
-        alignScore->jIndex = target_len;
-    }
+    
+    alignScore = &V[graph.nodes_number][target_len];
+    alignScore->iIndex = graph.nodes_number;
+    alignScore->jIndex = target_len;
+    
     
     list<tuple<Node *, int>> succ;
     vector<tuple<Node *, int>> nodes;
     list<tuple<Node *, int>> removed;
+    string tmp = "";
     while (alignScore->comingFrom != nullptr){
         if (alignScore->comingFrom->iIndex == alignScore->iIndex && alignScore->comingFrom->jIndex < alignScore->jIndex){
             //fromLeft
+            tmp = tmp + 'I';
             nodes.push_back(make_tuple(graphNew.createNode(target[alignScore->jIndex - 1]), false));
             if(!succ.empty()){
                 for(tuple<Node*, int> s : succ){
@@ -225,6 +206,7 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
         }
         if (alignScore->comingFrom->jIndex == alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
             //fromTop
+            tmp = tmp + 'D';
             nodes.push_back(make_tuple(graphNew.createNode(graph.nodes[alignScore->iIndex - 1]->value), false));
             if(!succ.empty()){
                 for(tuple<Node*, int> s : succ){
@@ -254,9 +236,10 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
         }
         if (alignScore->comingFrom->jIndex < alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
             //fromDiagonal
+            tmp = tmp + 'M';
             if(graph.nodes[alignScore->iIndex - 1]->value == target[alignScore->jIndex - 1]){
                 //match
-                //dodajem samo jedan čvor
+                //add one node
                 nodes.push_back(make_tuple(graphNew.createNode(graph.nodes[alignScore->iIndex - 1]->value), 2));
                 if(!succ.empty()){
                     for(tuple<Node*, int> s : succ){
@@ -272,7 +255,7 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
                 nodes.clear();
             }else{
                 //mismatch
-                //dodajem dva čvora koji imaju istog prethodnika
+                //add two nodes with same predecessor
                 nodes.push_back(make_tuple(graphNew.createNode(graph.nodes[alignScore->iIndex - 1]->value), true));
                 nodes.push_back(make_tuple(graphNew.createNode(target[alignScore->jIndex - 1]), false));
                 if(!succ.empty()){
@@ -297,6 +280,22 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
         }
         alignScore = alignScore->comingFrom;
     }
+    reverse(tmp.begin(), tmp.end());
+    if(cigar != nullptr){
+        *cigar = "";
+        char c = tmp.at(0);
+        int n = 1;
+        for(int i = 1; i < tmp.size(); i++){
+            if(tmp.at(i) == c){
+                n++;
+            }else{
+                *cigar = *cigar + to_string(n) + c;
+                n = 1;
+                c = tmp.at(i);
+            }
+        }
+        *cigar = *cigar + to_string(n) + c;
+    }
     cout << endl;
     graphNew.reverseNodes();
     graphNew.addPredecessors();
@@ -307,8 +306,9 @@ void start(const char *seq1, unsigned int seq1_len, const char *seq2, unsigned i
     graph.createGraph(seq1, sizeof(seq1));
     graph.topologicalSort();
     //graph.print();
-    AlignToGraph(seq2, sizeof(seq2), global, 1, -1, -2);
-    cout << endl;
+    string cigar = "";
+    AlignToGraph(seq2, sizeof(seq2), global, 1, -1, -2, &cigar);
+    cout << cigar << endl;
 }
 /* int main(){
     char seq1[] = {'A', 'G', 'C', 'T', 'G', 'C', 'A', 'T'};
