@@ -47,47 +47,38 @@ void initialization(AlignmentType type, unsigned int target_len, int gap)
 {
     V[0][0].value = 0;
     V[0][0].iIndex = 0;
-    V[0][0].iIndex = 0;
+    V[0][0].jIndex = 0;
     for (int i = 1; i <= (*graph).nodes_number; i++){
         if(type == global){
             V[i][0].value = gap * i;
         }else{
-            V[i][0].value = 0;
+            V[i][0].value = 0; 
         }
         V[i][0].comingFrom = &V[i - 1][0];
         V[i][0].iIndex = i;
-        V[i][0].iIndex = 0;
+        V[i][0].jIndex = 0;
     }
     for (int j = 1; j <= target_len; j++){
         if(type == global){
             V[0][j].value = gap * j;
         }else{
-            V[0][j].value = 0;
+            V[0][j].value = 0; 
         }
         V[0][j].comingFrom = &V[0][j - 1];
         V[0][j].iIndex = 0;
-        V[0][j].iIndex = j;
+        V[0][j].jIndex = j;
     }
-        
     for (int i = 1; i <= (*graph).nodes_number; i++){
         for (int j = 1; j <= target_len; j++){
             V[i][j].value = 0;
-            if (j == 0){
-                V[i][j].comingFrom = &V[i - 1][j];
-                V[i][j].iIndex = j;
-                V[i][j].jIndex = j;
-            }
-            if (i == 0){
-                V[i][j].comingFrom = &V[i][j - 1];
-                V[i][j].iIndex = i;
-                V[i][j].jIndex = j - 1;
-            }
+            V[i][j].iIndex = i;
+            V[i][j].jIndex = j;
         }
     }
     Cell *cell;
     for (int j = 1; j <= target_len; j++){
         for (vector<Node*>::iterator it = (*graph).nodes.begin(); it != (*graph).nodes.end(); it++){
-            if(!(*it)->predecessors.empty()){ 
+            if(!(*it)->predecessors.empty()){
                 for(vector<Node*>::iterator iter = (*it)->predecessors.begin(); iter != (*it)->predecessors.end(); iter++){
                     cell = &V[(*iter)->id + 1][j];
                     cell->value = V[(*iter)->id + 1][j].value;
@@ -114,7 +105,6 @@ void initialization(AlignmentType type, unsigned int target_len, int gap)
                 cell->jIndex = j - 1;
                 V[(*it)->id + 1][j].predecessors.push_back(cell);
             }
-            
         }
     }
 }
@@ -309,6 +299,10 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
             }
         }
         *cigar = *cigar + to_string(n) + c;
+        for (int i = 0; i <= (*graph).nodes_number; i++) {
+            delete[] V[i];
+        }
+        delete[] V;
     }
     cout << endl;
     (*graphNew).reverseNodes();
