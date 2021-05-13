@@ -63,6 +63,15 @@ public:
         }
     }
 
+    void deletePredecessor(Node *src, Node *pred){
+        for(std::vector<Node*>::iterator it = src->predecessors.begin(); it != src->predecessors.end(); it++){
+            if((*it) == pred){
+                src->predecessors.erase(it);
+            }
+        }
+        
+    }
+
     void topologicalSort(){
         std::vector<Node*> sortedNodes;
         std::list<Node*> setNodes;
@@ -98,7 +107,7 @@ public:
 
     Node* createNode(char value){
         Node *node = new Node;
-        node->id = ID++;
+        node->id = ++ID;
         node->value = value;
         nodes.push_back(node);
         nodes_number++;
@@ -110,6 +119,10 @@ public:
         edge->src = src;
         edge->dest = dest;
         edges.push_back(edge);
+    }
+
+    void deleteEdge(Edge* e){
+        edges.remove(e);
     }
 
     void addNode(Node *node){

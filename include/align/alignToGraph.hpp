@@ -197,6 +197,29 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
         else if (alignScore->comingFrom->jIndex == alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
             //fromTop
             tmp = tmp + 'D';
+            currentNode = (*graph).nodes[alignScore->iIndex - 1];
+            list <Edge *> delEdges;
+            list <Node *> delPred;
+            for(Edge* e : (*graph).edges){
+                if(e->src == currentNode && e->dest == newNode){
+                    for(Node* n : e->src->predecessors){
+                        (*graph).createEdge(n, newNode);
+                        newNode->predecessors.push_back(n);
+                    }
+                    for(Node* n : e->dest->predecessors){
+                        if(n == currentNode){
+                            (*graph).deletePredecessor(e->dest, n);
+                        }
+                        
+                    }
+                    delEdges.push_back(e);
+                }
+            }
+            for(Edge* e : delEdges){
+                cout << e->src->value << "(" << e->src->id << ") -> " << e->dest->value << "(" << e->dest->id << ")" << endl;
+                
+                (*graph).deleteEdge(e);
+            }
         }
         else if (alignScore->comingFrom->jIndex < alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
             //fromDiagonal
