@@ -171,6 +171,7 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
     alignScore = &V[(*graph).nodes_number][target_len];
     alignScore->iIndex = (*graph).nodes_number;
     alignScore->jIndex = target_len;
+    int cellNumber = (*graph).nodes_number;
     
     Node* newNode;
     Node* insertionNode = new Node;
@@ -307,20 +308,19 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
             }
         }
         *cigar = *cigar + to_string(n) + c;
-        cout << *cigar << endl;
-        for (int i = 0; i <= (*graph).nodes_number; i++) {
-            delete[] V[i];
-        }
-        delete[] V;
     }
+    for (int i = 0; i <= cellNumber; i++) {
+        delete[] V[i];
+    }
+    delete[] V;
     cout << endl;
 }
 void start(const char *seq1, unsigned int seq1_len, const char *seq2, unsigned int seq2_len){
     (*graph).createGraph(seq1, sizeof(seq1));
     (*graph).topologicalSort();
-    //string cigar = "";
-    AlignToGraph(seq2, seq2_len, global, 1, -1, -2, nullptr);
-    //cout << cigar << endl;
+    string cigar = "";
+    AlignToGraph(seq2, seq2_len, global, 1, -1, -2, &cigar);
+    cout << cigar << endl;
 }
 /* int main(){
     char seq1[] = {'A', 'G', 'C', 'T', 'G', 'C', 'A', 'T'};
