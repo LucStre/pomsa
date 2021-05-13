@@ -2,13 +2,14 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <tuple>
 
 struct Node{
-    int id;
+    int id = -1;
     char value;
     int predCount = 0;
     std::vector<Node *> predecessors;
-    //id of sequence and position index of each letter in sequence for pomsa
+    std::vector<std::tuple<int, int>> sequence;
     bool operator<(const Node &other) const{
         return value < other.value;
     };
@@ -32,11 +33,12 @@ public:
     std::vector<Node*> nodes;
     std::list<Edge*> edges;
     unsigned int nodes_number = 0;
+    unsigned int graph_length = 0;
     int ID = 0;
 
     Graph() {}
 
-    void createGraph(const char *seq, unsigned int seq_len){
+    void createGraph(const char *seq, unsigned int seq_len, int seq_id){
         nodes_number = seq_len;
         Node *current;
         Node *prev;
@@ -45,6 +47,8 @@ public:
             current = new Node;
             current->id = ID++;
             current->value = seq[i];
+            current->sequence.push_back(std::make_tuple(seq_id, i));
+            graph_length++;
             if (i > 0){
                 edge = new Edge;
                 edge->src = prev;
@@ -105,10 +109,11 @@ public:
         nodes = sortedNodes;
     }
 
-    Node* createNode(char value){
+    Node* createNode(char value, int seq_id, int position){
         Node *node = new Node;
-        node->id = ++ID;
+        node->id = ID++;
         node->value = value;
+        node->sequence.push_back(std::make_tuple(seq_id, position));
         nodes.push_back(node);
         nodes_number++;
         return node;
@@ -145,6 +150,14 @@ public:
             std::cout << e->src->value << "(" << e->src->id << ")"
                                                              "->"
                       << e->dest->value << "(" << e->dest->id << ") ";
+        }
+        std::cout << std::endl;
+        for (Node *n : nodes){
+            std::cout << n->value << "(" << n->id << ") ";
+            for (std::vector<std::tuple<int, int>>::iterator it = n->sequence.begin(); it != n->sequence.end(); it++){
+                std::cout << "(" << std::get<0>(*it) << ", " << std::get<1>(*it) << ") ";
+            }
+            std::cout << std::endl;
         }
         std::cout << std::endl;
     }

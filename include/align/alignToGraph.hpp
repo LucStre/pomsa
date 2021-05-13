@@ -109,7 +109,7 @@ void initialization(AlignmentType type, unsigned int target_len, int gap)
     }
 }
 
-void AlignToGraph(const char *target, unsigned int target_len, AlignmentType type, int match, int mismatch, int gap, string *cigar = nullptr)
+void AlignToGraph(const char *target, unsigned int target_len, int target_id, AlignmentType type, int match, int mismatch, int gap, string *cigar = nullptr)
 {
     V = new Cell *[(*graph).nodes_number + 1];
     for (unsigned int i = 0; i <= (*graph).nodes_number; i++){
@@ -183,7 +183,8 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
         if (alignScore->comingFrom->iIndex == alignScore->iIndex && alignScore->comingFrom->jIndex < alignScore->jIndex){
             //fromLeft
             tmp = tmp + 'I';
-            newNode = (*graph).createNode(target[alignScore->jIndex - 1]);
+            newNode = (*graph).createNode(target[alignScore->jIndex - 1], target_id, alignScore->jIndex - 1);
+            (*graph).graph_length++;
             if(currentNode->id >= 0){
                 (*graph).createEdge(newNode, currentNode);
                 currentNode->predecessors.push_back(newNode);
@@ -225,6 +226,7 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
             if((*graph).nodes[alignScore->iIndex - 1]->value == target[alignScore->jIndex - 1]){
                 //match
                 currentNode = (*graph).nodes[alignScore->iIndex - 1];
+                currentNode->sequence.push_back(make_tuple(target_id, alignScore->jIndex - 1));
                 if(insertionNode->id >= 0){
                     (*graph).createEdge((*graph).nodes[alignScore->iIndex - 1], insertionNode);
                     insertionNode->predecessors.push_back((*graph).nodes[alignScore->iIndex - 1]);
@@ -248,7 +250,7 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
             }else{
                 //mismatch
                 //add new node with same predecessor as node that he mismatches with
-                newNode = (*graph).createNode(target[alignScore->jIndex - 1]);
+                newNode = (*graph).createNode(target[alignScore->jIndex - 1], target_id, alignScore->jIndex - 1);
                 if(insertionNode->id >= 0){
                     (*graph).createEdge(newNode, insertionNode);
                     insertionNode->predecessors.push_back(newNode);
@@ -316,10 +318,10 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
     cout << endl;
 }
 void start(const char *seq1, unsigned int seq1_len, const char *seq2, unsigned int seq2_len){
-    (*graph).createGraph(seq1, sizeof(seq1));
+    (*graph).createGraph(seq1, sizeof(seq1), 1);
     (*graph).topologicalSort();
     string cigar = "";
-    AlignToGraph(seq2, seq2_len, global, 1, -1, -2, &cigar);
+    AlignToGraph(seq2, seq2_len, 2, global, 1, -1, -2, &cigar);
     cout << cigar << endl;
 }
 /* int main(){
