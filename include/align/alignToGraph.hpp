@@ -184,12 +184,12 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
             //fromLeft
             tmp = tmp + 'I';
             newNode = (*graph).createNode(target[alignScore->jIndex - 1]);
-            if(currentNode->id > 0){
+            if(currentNode->id >= 0){
                 (*graph).createEdge(newNode, currentNode);
                 currentNode->predecessors.push_back(newNode);
                 currentNode = new Node;
             }
-            if(insertionNode->id > 0){
+            if(insertionNode->id >= 0){
                 (*graph).createEdge(newNode, insertionNode);
                 insertionNode->predecessors.push_back(newNode);
             }
@@ -225,7 +225,7 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
             if((*graph).nodes[alignScore->iIndex - 1]->value == target[alignScore->jIndex - 1]){
                 //match
                 currentNode = (*graph).nodes[alignScore->iIndex - 1];
-                if(insertionNode->id > 0){
+                if(insertionNode->id >= 0){
                     (*graph).createEdge((*graph).nodes[alignScore->iIndex - 1], insertionNode);
                     insertionNode->predecessors.push_back((*graph).nodes[alignScore->iIndex - 1]);
                     insertionNode = new Node;
@@ -234,7 +234,7 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
                     for(Node* n : (*graph).nodes){
                         if(n->id == alignScore->iIndex - 1){
                             for(Edge* e : (*graph).edges){
-                                if(e->src == n && succNode->id > 0){
+                                if(e->src == n && succNode->id >= 0){
                                     (*graph).createEdge(n, newNode);
                                     newNode->predecessors.push_back(n);
                                     delete succNode;
@@ -249,13 +249,13 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
                 //mismatch
                 //add new node with same predecessor as node that he mismatches with
                 newNode = (*graph).createNode(target[alignScore->jIndex - 1]);
-                if(insertionNode->id > 0){
+                if(insertionNode->id >= 0){
                     (*graph).createEdge(newNode, insertionNode);
                     insertionNode->predecessors.push_back(newNode);
                     insertionNode = new Node;
                 }
                 mm = true;
-                if(succNode->id > 0){
+                if(succNode->id >= 0){
                     for(Edge* e : (*graph).edges){
                         if(e->src->id == succNode->id){
                             (*graph).createEdge(newNode, e->src);
