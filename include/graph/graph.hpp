@@ -91,6 +91,7 @@ public:
         ID = 0;
         for(Node *node : sortedNodes){
             node->id = ID++;
+            node->predCount = 0;
         }
         nodes = sortedNodes;
     }

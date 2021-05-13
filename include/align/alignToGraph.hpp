@@ -172,118 +172,106 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
     alignScore->iIndex = (*graph).nodes_number;
     alignScore->jIndex = target_len;
     
-    list<tuple<Node *, int>> succ;
-    vector<tuple<Node *, int>> nodes;
-    list<tuple<Node *, int>> removed;
+    Node* newNode;
+    Node* insertionNode = new Node;
+    Node* succNode = new Node;
+    Node* currentNode = new Node;
+    bool mm = false;
     string tmp = "";
-    Graph *graphNew = new Graph;
     while (alignScore->comingFrom != nullptr){
         if (alignScore->comingFrom->iIndex == alignScore->iIndex && alignScore->comingFrom->jIndex < alignScore->jIndex){
             //fromLeft
             tmp = tmp + 'I';
-            nodes.push_back(make_tuple((*graphNew).createNode(target[alignScore->jIndex - 1]), false));
-            if(!succ.empty()){
-                for(tuple<Node*, int> s : succ){
-                    for(tuple<Node*, int> n : nodes){
-                        if(get<1>(s) == 0){
-                            (*graphNew).createEdge(get<0>(n), get<0>(s));
-                        }
-                        if(alignScore->comingFrom->comingFrom == nullptr){
-                            (*graphNew).createEdge(get<0>(n), get<0>(s));
-                        }
-                    }
-                }
-                for(tuple<Node*, int> s : succ){
-                    if(get<1>(s) == 0){
-                        removed.push_back(s);
-                    }
-                }
+            newNode = (*graph).createNode(target[alignScore->jIndex - 1]);
+            if(currentNode->id > 0){
+                (*graph).createEdge(newNode, currentNode);
+                currentNode->predecessors.push_back(newNode);
+                currentNode = new Node;
             }
-            for(tuple<Node *, int> r : removed){
-                succ.remove(r);
+            if(insertionNode->id > 0){
+                (*graph).createEdge(newNode, insertionNode);
+                insertionNode->predecessors.push_back(newNode);
             }
-            removed.clear();
-            for(tuple<Node*, int> n : nodes){
-                succ.push_back(n);
-            }
-            nodes.clear();
+            insertionNode = newNode;
         }
-        if (alignScore->comingFrom->jIndex == alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
+        else if (alignScore->comingFrom->jIndex == alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
             //fromTop
             tmp = tmp + 'D';
-            nodes.push_back(make_tuple((*graphNew).createNode((*graph).nodes[alignScore->iIndex - 1]->value), false));
-            if(!succ.empty()){
-                for(tuple<Node*, int> s : succ){
-                    for(tuple<Node*, int> n : nodes){
-                        if(get<1>(s) == 1){
-                            (*graphNew).createEdge(get<0>(n), get<0>(s));
-                        }
-                        if(alignScore->comingFrom->comingFrom == nullptr){
-                            (*graphNew).createEdge(get<0>(n), get<0>(s));
-                        }
-                    }
-                }
-                for(tuple<Node*, int> s : succ){
-                    if(get<1>(s) == 1){
-                        removed.push_back(s);
-                    }
-                }
-            }
-            for(tuple<Node *, int> r : removed){
-                succ.remove(r);
-            }
-            removed.clear();
-            for(tuple<Node*, int> n : nodes){
-                succ.push_back(n);
-            }
-            nodes.clear();
         }
-        if (alignScore->comingFrom->jIndex < alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
+        else if (alignScore->comingFrom->jIndex < alignScore->jIndex && alignScore->comingFrom->iIndex < alignScore->iIndex){
             //fromDiagonal
             tmp = tmp + 'M';
             if((*graph).nodes[alignScore->iIndex - 1]->value == target[alignScore->jIndex - 1]){
                 //match
-                //add one node
-                nodes.push_back(make_tuple((*graphNew).createNode((*graph).nodes[alignScore->iIndex - 1]->value), 2));
-                if(!succ.empty()){
-                    for(tuple<Node*, int> s : succ){
-                        for(tuple<Node*, int> n : nodes){
-                            (*graphNew).createEdge(get<0>(n), get<0>(s));
-                        }
-                    }
-                    succ.clear();
+                currentNode = (*graph).nodes[alignScore->iIndex - 1];
+                if(insertionNode->id > 0){
+                    (*graph).createEdge((*graph).nodes[alignScore->iIndex - 1], insertionNode);
+                    insertionNode->predecessors.push_back((*graph).nodes[alignScore->iIndex - 1]);
+                    insertionNode = new Node;
                 }
-                for(tuple<Node*, int> n : nodes){
-                    succ.push_back(n);
-                }
-                nodes.clear();
-            }else{
-                //mismatch
-                //add two nodes with same predecessor
-                nodes.push_back(make_tuple((*graphNew).createNode((*graph).nodes[alignScore->iIndex - 1]->value), true));
-                nodes.push_back(make_tuple((*graphNew).createNode(target[alignScore->jIndex - 1]), false));
-                if(!succ.empty()){
-                    for(tuple<Node*, int> s : succ){
-                        for(tuple<Node*, int> n : nodes){
-                            if(get<1>(s) == 2){
-                                (*graphNew).createEdge(get<0>(n), get<0>(s));
-                            }else{
-                                if(get<1>(s) == get<1>(n)){
-                                    (*graphNew).createEdge(get<0>(n), get<0>(s));
+                if(mm){
+                    for(Node* n : (*graph).nodes){
+                        if(n->id == alignScore->iIndex - 1){
+                            for(Edge* e : (*graph).edges){
+                                if(e->src == n && succNode->id > 0){
+                                    (*graph).createEdge(n, newNode);
+                                    newNode->predecessors.push_back(n);
+                                    delete succNode;
+                                    succNode = new Node;
                                 }
                             }
                         }
                     }
-                    succ.clear();
+                    mm = false;
                 }
-                for(tuple<Node*, int> n : nodes){
-                    succ.push_back(n);
+            }else{
+                //mismatch
+                //add new node with same predecessor as node that he mismatches with
+                newNode = (*graph).createNode(target[alignScore->jIndex - 1]);
+                if(insertionNode->id > 0){
+                    (*graph).createEdge(newNode, insertionNode);
+                    insertionNode->predecessors.push_back(newNode);
+                    insertionNode = new Node;
                 }
-                nodes.clear();
+                mm = true;
+                if(succNode->id > 0){
+                    for(Edge* e : (*graph).edges){
+                        if(e->src->id == succNode->id){
+                            (*graph).createEdge(newNode, e->src);
+                            e->src->predecessors.push_back(newNode);
+                        }
+                    }
+                    *succNode = *newNode;
+                }else{
+                    for(Node* n : (*graph).nodes){
+                        if(n->id == alignScore->iIndex - 1){
+                            for(Edge* e : (*graph).edges){
+                                if(e->src == n){
+                                    (*graph).createEdge(newNode, e->dest);
+                                    e->dest->predecessors.push_back(newNode);
+                                    *succNode = *newNode;
+                                }else if(e->dest == n){
+                                    bool add = true;
+                                    for(Edge* e : (*graph).edges){
+                                        if(e->src == n){
+                                            add = false;
+                                        }
+                                    }
+                                    if(add){
+                                        (*graph).createEdge(e->src, newNode);
+                                        newNode->predecessors.push_back(e->src);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }  
             }
         }
         alignScore = alignScore->comingFrom;
     }
+    (*graph).topologicalSort();
+    (*graph).print();
     reverse(tmp.begin(), tmp.end());
     if(cigar != nullptr){
         *cigar = "";
@@ -299,24 +287,20 @@ void AlignToGraph(const char *target, unsigned int target_len, AlignmentType typ
             }
         }
         *cigar = *cigar + to_string(n) + c;
+        cout << *cigar << endl;
         for (int i = 0; i <= (*graph).nodes_number; i++) {
             delete[] V[i];
         }
         delete[] V;
     }
     cout << endl;
-    (*graphNew).reverseNodes();
-    (*graphNew).addPredecessors();
-    (*graphNew).topologicalSort();
-    graph = graphNew;
-    (*graph).print();
 }
 void start(const char *seq1, unsigned int seq1_len, const char *seq2, unsigned int seq2_len){
     (*graph).createGraph(seq1, sizeof(seq1));
     (*graph).topologicalSort();
-    string cigar = "";
-    AlignToGraph(seq2, seq2_len, global, 1, -1, -2, &cigar);
-    cout << cigar << endl;
+    //string cigar = "";
+    AlignToGraph(seq2, seq2_len, global, 1, -1, -2, nullptr);
+    //cout << cigar << endl;
 }
 /* int main(){
     char seq1[] = {'A', 'G', 'C', 'T', 'G', 'C', 'A', 'T'};
