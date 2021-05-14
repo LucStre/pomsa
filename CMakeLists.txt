@@ -9,12 +9,6 @@ configure_file(include/PomsaConfig.h.in PomsaConfig.h)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(ALIGN_INCLUDES ${PROJECT_SOURCE_DIR}/../include/align)
-set(GRAPH_INCLUDES ${PROJECT_SOURCE_DIR}/../include/graph)
-
-include_directories(${ALIGN_INCLUDES})
-include_directories(${GRAPH_INCLUDES})
-
 add_executable(${PROJECT_NAME} src/pomsa.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
