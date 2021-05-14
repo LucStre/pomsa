@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../pomsa_build/PomsaConfig.h"
-#include "../include/align/alignToGraph.hpp"
+#include "../include/alignToGraph.hpp"
 
 using namespace std;
 

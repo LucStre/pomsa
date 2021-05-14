@@ -3,7 +3,9 @@
 #include <vector>
 #include <map>
 #include <tuple>
-#include "../include/graph/graph.hpp"
+#include <fstream>
+#include "graph.hpp"
+#include "GFA.hpp"
 
 using namespace std;
 
@@ -294,7 +296,7 @@ void AlignToGraph(const char *target, unsigned int target_len, int target_id, Al
         alignScore = alignScore->comingFrom;
     }
     (*graph).topologicalSort();
-    (*graph).print();
+    //(*graph).print();
     reverse(tmp.begin(), tmp.end());
     if(cigar != nullptr){
         *cigar = "";
@@ -315,14 +317,56 @@ void AlignToGraph(const char *target, unsigned int target_len, int target_id, Al
         delete[] V[i];
     }
     delete[] V;
-    cout << endl;
 }
-void start(const char *seq1, unsigned int seq1_len, const char *seq2, unsigned int seq2_len){
-    (*graph).createGraph(seq1, sizeof(seq1), 1);
+void start(const char *seq11, unsigned int seq11_len, const char *seq22, unsigned int seq22_len){
+    /* (*graph).createGraph(seq1, sizeof(seq1), 1);
     (*graph).topologicalSort();
     string cigar = "";
     AlignToGraph(seq2, seq2_len, 2, global, 1, -1, -2, &cigar);
-    cout << cigar << endl;
+    cout << cigar << endl; */
+    int seq_id = 0;
+    char seq1[] = {'G', 'T', 'A'};
+    (*graph).createGraph(seq1, sizeof(seq1), ++seq_id);
+    (*graph).topologicalSort();
+
+    char seq2[] = {'A', 'G', 'C', 'A'};
+    string cigar1 = "";
+    AlignToGraph(seq2, sizeof(seq2), ++seq_id, global, 1, -1, -2, &cigar1);
+    //cout << cigar1 << endl;
+    //(*graph).print();
+    
+    char seq3[] = {'G', 'T', 'A', 'T'};
+    string cigar2 = "";
+    AlignToGraph(seq3, sizeof(seq3), ++seq_id, global, 1, -1, -2, &cigar2);
+    //cout << cigar2 << endl;
+
+    char seq4[] = {'G', 'T', 'A', 'C'};
+    string cigar3 = "";
+    AlignToGraph(seq4, sizeof(seq4), ++seq_id, global, 1, -1, -2, &cigar3);
+    //cout << cigar3 << endl;
+
+    std::ofstream file("text.gfa");
+    file << "Napisano" << std::endl;
+    file.close();
+
+    //create GFA file
+    GFA* gfa = new GFA("text.gfa", 1.0);
+    (*gfa).headerLine();
+    (*gfa).addSequence(seq1, sizeof(seq1), 1);
+    (*gfa).addSequence(seq2, sizeof(seq2), 2);
+    (*gfa).addSequence(seq3, sizeof(seq3), 3);
+    (*gfa).addSequence(seq4, sizeof(seq4), 4);
+    (*gfa).segmentLine();
+    (*gfa).addLink(1, 2, cigar1);
+    (*gfa).addLink(12, 3, cigar2);
+    (*gfa).addLink(123, 4, cigar3);
+    (*gfa).linkLine();
+    (*gfa).pathLine(seq_id + 1);
+    (*gfa).findPath(graph);
+    (*gfa).calculateConsensus((*graph).graph_length, seq_id);
+    (*gfa).printPath();
+    (*gfa).close();
+    delete gfa;
 }
 /* int main(){
     char seq1[] = {'A', 'G', 'C', 'T', 'G', 'C', 'A', 'T'};
