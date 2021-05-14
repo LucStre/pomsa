@@ -318,44 +318,33 @@ void AlignToGraph(const char *target, unsigned int target_len, int target_id, Al
     }
     delete[] V;
 }
-void start(const char *seq11, unsigned int seq11_len, const char *seq22, unsigned int seq22_len){
-    /* (*graph).createGraph(seq1, sizeof(seq1), 1);
-    (*graph).topologicalSort();
-    string cigar = "";
-    AlignToGraph(seq2, seq2_len, 2, global, 1, -1, -2, &cigar);
-    cout << cigar << endl; */
-    int seq_id = 0;
-    GFA* gfa = new GFA("text.gfa", 1.0);
+
+int seq_id = 0;
+GFA* gfa;
+void start(string sequence, unsigned int seq_len){
+    gfa = new GFA("text.gfa", 1.0);
     (*gfa).headerLine();
 
-    char seq1[] = {'G', 'T', 'A'};
-    (*graph).createGraph(seq1, sizeof(seq1), ++seq_id);
-    (*gfa).addSequence(seq1, sizeof(seq1), seq_id);
+    char seqChar[seq_len];
+    strcpy(seqChar, sequence.c_str());
+
+    (*graph).createGraph(seqChar, seq_len, ++seq_id);
+    (*gfa).addSequence(seqChar, seq_len, seq_id);
     (*graph).topologicalSort();
+}
 
-    char seq2[] = {'A', 'G', 'C', 'A'};
-    string cigar1 = "";
-    AlignToGraph(seq2, sizeof(seq2), ++seq_id, global, 1, -1, -2, &cigar1);
-    (*gfa).addSequence(seq2, sizeof(seq2), seq_id);
-    //cout << cigar1 << endl;
-    //(*graph).print();
-    
-    char seq3[] = {'G', 'T', 'A', 'T'};
-    string cigar2 = "";
-    AlignToGraph(seq3, sizeof(seq3), ++seq_id, global, 1, -1, -2, &cigar2);
-    (*gfa).addSequence(seq3, sizeof(seq3), seq_id);
-    //cout << cigar2 << endl;
+void alignSequence(string sequence, unsigned int sequence_len){
 
-    char seq4[] = {'G', 'T', 'A', 'C'};
-    string cigar3 = "";
-    AlignToGraph(seq4, sizeof(seq4), ++seq_id, global, 1, -1, -2, &cigar3);
-    (*gfa).addSequence(seq4, sizeof(seq4), seq_id);
-    //cout << cigar3 << endl;
-    
+    char seqChar[sequence_len];
+    strcpy(seqChar, sequence.c_str());
+    string cigar = "";
+    AlignToGraph(seqChar, sequence_len, ++seq_id, global, 1, -1, -2, &cigar);
+    (*gfa).addSequence(seqChar, sequence_len, seq_id);
+    (*gfa).addLink(1, seq_id, cigar);
+}
+
+void printGFA(){
     (*gfa).segmentLine();
-    (*gfa).addLink(1, 2, cigar1);
-    (*gfa).addLink(12, 3, cigar2);
-    (*gfa).addLink(123, 4, cigar3);
     (*gfa).linkLine();
     (*gfa).pathLine(seq_id + 1);
     (*gfa).findPath(graph);
@@ -363,6 +352,7 @@ void start(const char *seq11, unsigned int seq11_len, const char *seq22, unsigne
     (*gfa).printPath();
     (*gfa).close();
     delete gfa;
+    delete graph;
 }
 /* int main(){
     char seq1[] = {'A', 'G', 'C', 'T', 'G', 'C', 'A', 'T'};
