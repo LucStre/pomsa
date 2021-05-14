@@ -1,0 +1,21 @@
+R"(
+    Usage:
+        ./pomsa [OPTION]
+    Options:
+	   -v --version                    = Print version number and exit
+	   -h --help                       = Display this information and exit
+	   -a <int>                        = alignment type
+            default: 0
+            alignment mode:
+                0 - global (Needleman-Wunsch)
+                1 - semiglobal
+	   -m <int>              	   = match cost
+            default: 5
+            score for matching bases
+	   -n <int>		           = mismatch cost
+            default: -4
+            score for mismatching bases
+	   -g <int>			   = gap cost
+            default: -8
+            gap penalty
+)"

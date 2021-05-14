@@ -20,6 +20,8 @@ enum ComingFromDirection{
     fromDiagonal
 };
 
+int matchValue = 5, mismatchValue = -4, gapValue = -8;
+AlignmentType alignType = global;
 int MATCH = 0, INSERTION = 0, DELETION = 0;
 Graph *graph = new Graph;
 
@@ -45,14 +47,14 @@ struct Cell
 
 Cell **V;
 
-void initialization(AlignmentType type, unsigned int target_len, int gap)
+void initialization(unsigned int target_len)
 {
     V[0][0].value = 0;
     V[0][0].iIndex = 0;
     V[0][0].jIndex = 0;
     for (int i = 1; i <= (*graph).nodes_number; i++){
-        if(type == global){
-            V[i][0].value = gap * i;
+        if(alignType == global){
+            V[i][0].value = gapValue * i;
         }else{
             V[i][0].value = 0; 
         }
@@ -61,8 +63,8 @@ void initialization(AlignmentType type, unsigned int target_len, int gap)
         V[i][0].jIndex = 0;
     }
     for (int j = 1; j <= target_len; j++){
-        if(type == global){
-            V[0][j].value = gap * j;
+        if(alignType == global){
+            V[0][j].value = gapValue * j;
         }else{
             V[0][j].value = 0; 
         }
@@ -111,14 +113,14 @@ void initialization(AlignmentType type, unsigned int target_len, int gap)
     }
 }
 
-void AlignToGraph(const char *target, unsigned int target_len, int target_id, AlignmentType type, int match, int mismatch, int gap, string *cigar = nullptr)
+void AlignToGraph(const char *target, unsigned int target_len, int target_id, string *cigar = nullptr)
 {
     V = new Cell *[(*graph).nodes_number + 1];
     for (unsigned int i = 0; i <= (*graph).nodes_number; i++){
         V[i] = new Cell[target_len + 1];
     }
 
-    initialization(type, target_len, gap);
+    initialization(target_len);
 
     int maxMatch = 0, maxInsert = 0;
     Cell *matchCell, *insertionCell, *deletionCell;
@@ -128,14 +130,14 @@ void AlignToGraph(const char *target, unsigned int target_len, int target_id, Al
             bool inserted = false, matched = false;
             for (vector<Cell *>::iterator it = V[i][j].predecessors.begin(); it != V[i][j].predecessors.end(); it++){
                 if ((*it)->jIndex == j - 1){
-                    maxMatch = (*it)->value + (((*graph).nodes[i - 1]->value == target[j - 1]) ? match : mismatch);
+                    maxMatch = (*it)->value + (((*graph).nodes[i - 1]->value == target[j - 1]) ? matchValue : mismatchValue);
                     if (!matched){
                         MATCH = maxMatch;
                         matchCell = *it;
                         matched = true;
                     }
                 }else if ((*it)->jIndex == j){
-                    maxInsert = (*it)->value + gap;
+                    maxInsert = (*it)->value + gapValue;
                     if (!inserted){
                         INSERTION = maxInsert;
                         insertionCell = *it;
@@ -151,7 +153,7 @@ void AlignToGraph(const char *target, unsigned int target_len, int target_id, Al
                     insertionCell = *it;
                 }
             }
-            DELETION = V[i][j - 1].value + gap;
+            DELETION = V[i][j - 1].value + gapValue;
             deletionCell = &(V[i][j - 1]);
             if(MATCH >= INSERTION && MATCH >= DELETION){
                 V[i][j].comingFrom = matchCell;
@@ -321,9 +323,19 @@ void AlignToGraph(const char *target, unsigned int target_len, int target_id, Al
 
 int seq_id = 0;
 GFA* gfa;
-void start(string sequence, unsigned int seq_len){
+void start(string sequence, unsigned int seq_len, int m, int n, int g, int type){
     gfa = new GFA("text.gfa", 1.0);
     (*gfa).headerLine();
+
+    matchValue = m;
+    mismatchValue = n;
+    gapValue = g;
+
+    if(type == 0){
+        alignType = global;
+    }else if(type == 1){
+        alignType == semiglobal;
+    }
 
     char seqChar[seq_len];
     strcpy(seqChar, sequence.c_str());
@@ -338,7 +350,7 @@ void alignSequence(string sequence, unsigned int sequence_len){
     char seqChar[sequence_len];
     strcpy(seqChar, sequence.c_str());
     string cigar = "";
-    AlignToGraph(seqChar, sequence_len, ++seq_id, global, 1, -1, -2, &cigar);
+    AlignToGraph(seqChar, sequence_len, ++seq_id, &cigar);
     (*gfa).addSequence(seqChar, sequence_len, seq_id);
     (*gfa).addLink(1, seq_id, cigar);
 }
