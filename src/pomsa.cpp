@@ -38,7 +38,7 @@ int main(int argc, char **argv){
                 {0, 0, 0, 0}
             };
         int option_index = 0;
-        c = getopt_long(argc, argv, "hv:a:m:n:g:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vx:hx:a:m:n:g:", long_options, &option_index);
         if(c == -1){
             break;
         }
