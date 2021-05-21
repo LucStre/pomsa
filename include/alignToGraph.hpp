@@ -10,8 +10,7 @@
 using namespace std;
 
 enum AlignmentType{
-    global,
-    semiglobal
+    global
 };
 enum ComingFromDirection{
     fromNone,
@@ -53,21 +52,13 @@ void initialization(unsigned int target_len)
     V[0][0].iIndex = 0;
     V[0][0].jIndex = 0;
     for (int i = 1; i <= (*graph).nodes_number; i++){
-        if(alignType == global){
-            V[i][0].value = gapValue * i;
-        }else{
-            V[i][0].value = 0; 
-        }
+        V[i][0].value = gapValue * i;
         V[i][0].comingFrom = &V[i - 1][0];
         V[i][0].iIndex = i;
         V[i][0].jIndex = 0;
     }
     for (int j = 1; j <= target_len; j++){
-        if(alignType == global){
-            V[0][j].value = gapValue * j;
-        }else{
-            V[0][j].value = 0; 
-        }
+        V[0][j].value = gapValue * j;
         V[0][j].comingFrom = &V[0][j - 1];
         V[0][j].iIndex = 0;
         V[0][j].jIndex = j;
@@ -333,8 +324,6 @@ void start(string sequence, unsigned int seq_len, int m, int n, int g, int type)
 
     if(type == 0){
         alignType = global;
-    }else if(type == 1){
-        alignType == semiglobal;
     }
 
     char seqChar[seq_len];

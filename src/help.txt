@@ -8,7 +8,6 @@ R"(
             default: 0
             alignment mode:
                 0 - global (Needleman-Wunsch)
-                1 - semiglobal
 	   -m <int>              	   = match cost
             default: 5
             score for matching bases
