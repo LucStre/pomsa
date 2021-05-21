@@ -134,31 +134,4 @@ class GFA{
         void close(){
             MyFile.close();
         }
-
-        void calculateConsensus(unsigned int lenght, int seq_number){
-            std::string cons = "";
-            std::string consensusSequence = "";
-            char char_array[seq_number];
-            int max = 0;
-            char result;
-            for(int i = 0; i < lenght; i++){
-                for(std::vector<std::tuple<int, std::string>>::iterator it = path.begin(); it != path.end(); it++){
-                    cons += std::get<1>(*it).at(i);
-                }
-                char count[256] = {0};
-                max = 0;
-                strcpy(char_array, cons.c_str());
-                for (int i = 0; i < seq_number; i++) {
-                    count[char_array[i]]++;
-                    if (max < count[char_array[i]]) {
-                        max = count[char_array[i]];
-                        result = char_array[i];
-                    }
-                }
-                consensusSequence += result;
-                cons = "";
-            }
-            //add consensus sequence to path
-            path.push_back(make_tuple(seq_number + 1, consensusSequence)); 
-        }
 };

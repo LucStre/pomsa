@@ -360,7 +360,6 @@ void printGFA(){
     (*gfa).linkLine();
     (*gfa).pathLine(seq_id + 1);
     (*gfa).findPath(graph);
-    (*gfa).calculateConsensus((*graph).graph_length, seq_id);
     (*gfa).printPath();
     (*gfa).close();
     delete gfa;
