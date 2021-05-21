@@ -289,7 +289,6 @@ void AlignToGraph(const char *target, unsigned int target_len, int target_id, st
         alignScore = alignScore->comingFrom;
     }
     (*graph).topologicalSort();
-    //(*graph).print();
     reverse(tmp.begin(), tmp.end());
     if(cigar != nullptr){
         *cigar = "";
@@ -354,15 +353,3 @@ void printGFA(){
     delete gfa;
     delete graph;
 }
-/* int main(){
-    char seq1[] = {'A', 'G', 'C', 'T', 'G', 'C', 'A', 'T'};
-    char seq2[] = {'G', 'C', 'A', 'G', 'C', 'G'};
-    //char seq1[] = {'C', 'C', 'G', 'C', 'T', 'T', 'T', 'T', 'C', 'C', 'G', 'C'};
-    //char seq2[] = {'C', 'C', 'G', 'C', 'A', 'A', 'A', 'A', 'C', 'C', 'G', 'C'};
-    graph.createGraph(seq1, sizeof(seq1));
-    graph.topologicalSort();
-    //graph.print();
-    AlignToGraph(seq2, sizeof(seq2), global, 1, -1, -2);
-    cout << endl;
-    return 0;
-} */

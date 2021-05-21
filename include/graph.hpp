@@ -29,12 +29,15 @@ struct Edge{
 
 class Graph{
 
+private:
+    unsigned int ID = 0;
+
 public:
     std::vector<Node*> nodes;
     std::list<Edge*> edges;
     unsigned int nodes_number = 0;
     unsigned int graph_length = 0;
-    int ID = 0;
+    
 
     Graph() {}
 

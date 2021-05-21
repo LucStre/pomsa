@@ -88,12 +88,6 @@ int main(int argc, char **argv){
             }
         }
         printGFA();
-    }
-    /* char seq1[] = {'A', 'G', 'C', 'T', 'G', 'C', 'A', 'T'};
-    char seq2[] = {'G', 'C', 'A', 'G', 'C', 'G'}; */
-    /* char seq1[] = {'C', 'C', 'G', 'C', 'T', 'T', 'T', 'T', 'C', 'C', 'G', 'C'};
-    char seq2[] = {'C', 'C', 'G', 'C', 'A', 'A', 'A', 'A', 'C', 'C', 'G', 'C'}; */
-
-        
+    }   
     return 0;
 }
