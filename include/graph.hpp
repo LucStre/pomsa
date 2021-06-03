@@ -3,11 +3,13 @@
 #include <list>
 #include <algorithm>
 #include <tuple>
+#include <string>
 
 struct Node{
     int id = -1;
     char value;
     int predCount = 0;
+    int weight = 0;
     std::vector<Node *> predecessors;
     std::vector<std::tuple<int, int>> sequence;
     bool operator<(const Node &other) const{
@@ -25,6 +27,7 @@ struct Node{
 
 struct Edge{
     Node *src, *dest;
+    int weight = 0;
 };
 
 class Graph{
@@ -110,6 +113,7 @@ public:
             node->predCount = 0;
         }
         nodes = sortedNodes;
+        sortEdges();
     }
 
     Node* createNode(char value, int seq_id, int position){
@@ -139,6 +143,97 @@ public:
 
     void reverseNodes(){
         std::reverse(nodes.begin(), nodes.end());
+    }
+
+    void sortEdges(){
+        std::list<Edge*> sortedEdges;
+        for(Node *n : nodes){
+            for(Edge *e : edges){
+                if(n == e->src){
+                    sortedEdges.push_back(e);
+                }
+            }
+        }
+        edges = sortedEdges;
+    }
+
+    void calculateConsensus(){
+        for(Edge *e : edges){
+            e->weight = 0;
+            e->src->predCount = 1;
+        }
+        for(Node *n : nodes){
+            n->weight = 0;
+            for(Edge *e : edges){
+                if(n == e->src){
+                    e->weight += n->sequence.size();
+                }
+            }
+        }
+        int max = -1;
+        for(Edge *e1 : edges){
+            for(Edge *e2 : edges){
+                if(e1->src == e2->dest){
+                    if(e1->src->predecessors.size() == e1->src->predCount){
+                        e1->weight += max == -1 ? e2->weight : max;
+                        e1->dest->weight = e1->weight + e1->src->weight;
+                        max = -1;
+                    }else{
+                        e1->src->predCount++;
+                        if(e2->weight > max){
+                            max = e2->weight;
+                        }
+                    }
+                }else if(e2->src->predecessors.size() == 0){
+                    e2->dest->weight = e2->weight;
+                }
+            }
+        }
+        max = -1;
+        Node *maxNode;
+        for(Node *e : nodes){
+            e->predCount = 1;
+            if(e->weight > max){
+                max = e->weight;
+                maxNode = e;
+            }
+        }
+        std::string consensusSequence = "";
+        max = -1;
+        Node *tmp = nullptr;
+        for(Edge *e : edges){
+            if(maxNode == e->src || tmp == e->src){
+                for(Node *n: nodes){
+                    if(n != maxNode){
+                        n->weight = -1;
+                    }
+                }
+                tmp = e->dest;
+                tmp->weight = e->src->weight + e->weight;
+                consensusSequence += tmp->value;
+            }
+        }
+        while(maxNode->predecessors.size() != 0){
+            for(Edge *e : edges){
+                if(maxNode == e->dest){
+                    if(maxNode->predecessors.size() == maxNode->predCount){
+                        consensusSequence += maxNode->value;
+                        maxNode = tmp == nullptr ? e->src : tmp;
+                        tmp = nullptr;
+                    }else{
+                        maxNode->predCount++;
+                        if(max < e->weight){
+                            max = e->weight;
+                            tmp = e->src;
+                        }
+                    }
+                    
+                }
+            }
+        }
+        consensusSequence += maxNode->value;
+        reverse(consensusSequence.begin(), consensusSequence.end());
+        std::cout << "Consensus sequence: " << consensusSequence << std::endl;
     }
 
     void print(){

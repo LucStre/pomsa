@@ -19,7 +19,7 @@ enum ComingFromDirection{
     fromDiagonal
 };
 
-int matchValue = 5, mismatchValue = -4, gapValue = -8;
+int matchValue, mismatchValue, gapValue;
 AlignmentType alignType = global;
 int MATCH = 0, INSERTION = 0, DELETION = 0;
 Graph *graph = new Graph;
@@ -344,6 +344,8 @@ void alignSequence(string sequence, unsigned int sequence_len){
 }
 
 void printGFA(){
+    (*graph).print();
+    (*graph).calculateConsensus();
     (*gfa).segmentLine();
     (*gfa).linkLine();
     (*gfa).pathLine(seq_id + 1);
