@@ -25,7 +25,8 @@ void printHelpMessage(){
 
 int main(int argc, char **argv){
     int c;
-    int match, mismatch, gap, type;
+    int type;
+    int match = 5, mismatch = -4, gap = -8;
     while(1){
         static struct option long_options[] =
             {
@@ -79,7 +80,7 @@ int main(int argc, char **argv){
 
     if(align_flag){
         vector<string> sequences = {"GTA", "AGCA", "GTAT", "GTAC"};
-
+        
         for(vector<string>::iterator it = sequences.begin(); it != sequences.end(); it++){
             if(it == sequences.begin()){
                 start((*it), (*it).length(), match, mismatch, gap, type);
