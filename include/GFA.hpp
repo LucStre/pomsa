@@ -87,6 +87,7 @@ class GFA{
                 bool yes = false;
                 novi = "";
                 for(Node* node : (*graph).nodes){
+                    yes = false;
                     for(auto seeq : node->sequence){
                         if(std::get<0>(seeq) == s.id){
                             novi += node->value;
@@ -94,12 +95,6 @@ class GFA{
                         }
                     }
                     if(!yes){
-                        novi += "-";
-                        yes = false;
-                    }
-                }
-                if(novi.length() < (*graph).graph_length){
-                    for(int i = 0; i < (*graph).graph_length - novi.length(); i++){
                         novi += "-";
                     }
                 }

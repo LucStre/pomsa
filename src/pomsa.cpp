@@ -1,7 +1,9 @@
 #include <iostream>
 #include <getopt.h>
+#include <string>
 #include "../pomsa_build/PomsaConfig.h"
 #include "../include/alignToGraph.hpp"
+
 
 using namespace std;
 
@@ -27,6 +29,7 @@ int main(int argc, char **argv){
     int c;
     int type;
     int match = 5, mismatch = -4, gap = -8;
+    string file; 
     while(1){
         static struct option long_options[] =
             {
@@ -79,7 +82,12 @@ int main(int argc, char **argv){
     }
 
     if(align_flag){
-        vector<string> sequences = {"GTA", "AGCA", "GTAT", "GTAC"};
+        
+        vector<string> sequences = {
+        "AATGATGCGCTTTGTTGGCGCGGTGGCTTGATGCAGGGGCTAATCGACCTCTGGCAACCACTTTTCCATGAC",
+        "AATGATGCGCTTTGTTAACGCGGTGGCTTGATGCAGGGGCTGGTCGACCTCTGGCAACCACTTTTCCATG",
+        "TTAATGATGCGCTTTGTTGGCGCGGTGGCTTGATGCAGGGGCTAATCGACCTCTGGCAACCACTTTTCCATGAT",
+        "AATGATGCGCTTTGTTGGCGCGGTGGCTTGATGCATTTTCTAATCGACCTCTGGCAACCACTTTTCCATGAC"};
         
         for(vector<string>::iterator it = sequences.begin(); it != sequences.end(); it++){
             if(it == sequences.begin()){
@@ -89,6 +97,7 @@ int main(int argc, char **argv){
             }
         }
         printGFA();
-    }   
+    }
+    
     return 0;
 }
