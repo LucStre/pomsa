@@ -67,6 +67,10 @@ public:
         addPredecessors();
     }
 
+    std::list<Edge*> sortedEdges;
+    std::vector<Node*> sortedNodes;
+    std::list<Node*> setNodes;
+
     void addPredecessors(){
         for(Edge *e : edges){
             e->dest->predecessors.push_back(e->src);
@@ -83,8 +87,6 @@ public:
     }
 
     void topologicalSort(){
-        std::vector<Node*> sortedNodes;
-        std::list<Node*> setNodes;
         Node *n;
         bool visited[nodes_number] = {false};
         for (Node *node : nodes){
@@ -113,6 +115,8 @@ public:
             node->predCount = 0;
         }
         nodes = sortedNodes;
+        sortedNodes.clear();
+        setNodes.clear();
         sortEdges();
     }
 
@@ -146,7 +150,6 @@ public:
     }
 
     void sortEdges(){
-        std::list<Edge*> sortedEdges;
         for(Node *n : nodes){
             for(Edge *e : edges){
                 if(n == e->src){
@@ -155,6 +158,7 @@ public:
             }
         }
         edges = sortedEdges;
+        sortedEdges.clear();
     }
 
     void calculateConsensus(){

@@ -346,6 +346,8 @@ void alignSequence(string sequence, unsigned int sequence_len){
 void printGFA(){
     (*graph).print();
     (*graph).calculateConsensus();
+    cout << "Number of nodes: " << (*graph).nodes_number << endl;
+    cout << "Number of edges: " << (*graph).edges.size() << endl;
     (*gfa).segmentLine();
     (*gfa).linkLine();
     (*gfa).pathLine(seq_id + 1);
