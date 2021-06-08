@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 #set the project name and version 
-project(pomsa VERSION 0.2.0)
+project(pomsa VERSION 0.3.0)
 
 configure_file(include/PomsaConfig.h.in PomsaConfig.h)
 
