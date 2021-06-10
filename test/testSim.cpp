@@ -9,7 +9,7 @@ using namespace std::chrono;
 int main(int argc, char **argv){
     string ulaz;
     ifstream infile(argv[1]);
-    int match = 5, mismatch = -4, gap = -8, i = 0, type = 0;
+    int match = 3, mismatch = -2, gap = -6, i = 0, type = 0;
     int len;
     auto begin = high_resolution_clock::now();
     while(getline(infile, ulaz)){
